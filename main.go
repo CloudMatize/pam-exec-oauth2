@@ -24,6 +24,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"strings"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -60,9 +61,16 @@ func init() {
 
 func main() {
 	setting := cli.NewCLISetting()
+	username := os.Getenv("PAM_USER")
+	domain := "default"
+	if strings.Contains(username,"@") {
+		components := strings.Split(username, "@")
+		domain = components[1]
+	}
+
 	err := cli.Setup(
 		setting.ConfigSearchPath(),
-		setting.ConfigFile(filepath.Join(cli.Application.Directory, cli.Application.Name+".yaml")),
+		setting.ConfigFile(filepath.Join(cli.Application.Directory,domain+".yaml")),
 	)
 	cli.Exit1IfError(err)
 
@@ -70,7 +78,8 @@ func main() {
 		fmt.Println("Using config file:", cli.ConfigFile)
 	}
 
-	username := os.Getenv("PAM_USER")
+
+	
 	password := ""
 
 	stdinScanner := bufio.NewScanner(os.Stdin)
